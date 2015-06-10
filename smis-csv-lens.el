@@ -44,6 +44,17 @@
    usagerestriction))
 
 
+(defun csv-lens-cell-format-volumetype (type)
+  (interactive)
+  (or 
+   (assoc-default type
+		  '(("0" . "Unknown*")
+		    ("1" . "Base*")
+		    ("2" . "Physical Copy*")
+		    ("3" . "Virtual Copy")
+		    ("4" . "Remote Copy")))
+   type))
+
 
 (defun csv-lens-cell-format-statistictime (statistictime)
   "Return a nicely formatted STATISTICTIME."
@@ -88,31 +99,32 @@
 	("ElementType" :diff-function csv-lens-diff-always-nil)
 	
 	("StatisticTime" :diff-function csv-lens-diff-statistictime)
-	(("StatisticTime" "PeriodStartTime" "PeriodEndTime" "IM_OriginalStatisticTime")
+	(("StatisticTime" "PeriodStartTime" "PeriodEndTime" "IM_OriginalStatisticTime") 
 	 :format-function csv-lens-cell-format-statistictime)
 	
 	("UsageRestriction" :format-function csv-lens-cell-format-usagerestriction)
+	("VolumeType" :format-function csv-lens-cell-format-volumetype)
 	
 	("Consumed" :format-function csv-lens-cell-format-huge-number)
 	
-	(("NumberOfBlocks" "ConsumableBlocks")
+	(("NumberOfBlocks" "ConsumableBlocks") 
 	 :format-function csv-lens-cell-format-big-number-of-blocks)
-
-	(("EMCKBytesSPBWritten" "EMCKBytesSPAWritten"
-	  "EMCKBytesSPBRead" "EMCKBytesSPARead"
-	  "KBytesWritten" "KBytesTransferred" "KBytesRead")
+	
+	(("EMCKBytesSPBWritten" "EMCKBytesSPAWritten" 
+	  "EMCKBytesSPBRead" "EMCKBytesSPARead" 
+	  "KBytesWritten" "KBytesTransferred" "KBytesRead") 
 	 :format-function csv-lens-cell-format-big-number-of-kilobytes)
-
-	(("RequestedSpeed" "Speed" "MaxSpeed")
+	
+	(("RequestedSpeed" "Speed" "MaxSpeed"
+	  "RemainingManagedSpace" "SpaceLimit" "TotalManagedSpace" "ThinProvisionMetaDataSpace") 
 	 :format-function csv-lens-cell-format-big-number-of-bytes)
-
-	(("OtherIdentifyingInfo" "EMCWWN"
-	  "AntecedentFCPortWWN" "AntecedentElementWWN"
-	  "DependentFCPortWWN" "DependentElementWWN"
-	  "ElementName" "DeviceID"
-	  "SwitchWWPN" "PermanentAddress")
-	 :format-function csv-lens-cell-format-wwn)
-	(t :format-function csv-lens-cell-format-huge-number)))
+	
+	(("OtherIdentifyingInfo" "EMCWWN" 
+	  "AntecedentFCPortWWN" "AntecedentElementWWN" 
+	  "DependentFCPortWWN" "DependentElementWWN" 
+	  "ElementName" "DeviceID" 
+	  "SwitchWWPN" "PermanentAddress") 
+	 :format-function csv-lens-cell-format-wwn)))
 
 (provide 'smis-csv-lens)
 ;;; smis-csv-lens.el ends here
