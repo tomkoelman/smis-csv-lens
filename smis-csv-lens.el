@@ -30,6 +30,19 @@
       (concat (vendor-from-wwn/vendor-specific-nice-wwn wwn) " ("  (vendor-from-wwn wwn) ")*" )
     wwn))
 
+(defun csv-lens-cell-format-nameformat (nameformat)
+  (cond ((s-equals? nameformat "1") "Other*")
+        ((s-equals? nameformat "2") "VPD83NAA6 (deprecated)*")
+        ((s-equals? nameformat "3") "VPD83NAA5 (deprecated)*")
+        ((s-equals? nameformat "4") "BPD83Type2 (deprecated)*")
+        ((s-equals? nameformat "5") "BPD83Type1 (deprecated)*")
+        ((s-equals? nameformat "6") "BPD83Type0 (deprecated)*")
+        ((s-equals? nameformat "7") "SNVM*")
+        ((s-equals? nameformat "8") "NodeWWN (deprecated)*")
+        ((s-equals? nameformat "9") "NAA*")
+        ((s-equals? nameformat "10") "EUI64*")
+        ((s-equals? nameformat "11") "T10VID*")
+        (t nameformat)))
 
 
 (defun csv-lens-cell-format-usagerestriction (usagerestriction)
@@ -42,6 +55,31 @@
 		    ("3" .    "Back-end only*")
 		    ("4" .    "Not restricted*")))
    usagerestriction))
+
+
+(defun csv-lens-cell-format-usage (usage)
+  "Returns a nicely formatted USAGE."
+  (interactive)
+  (or
+   (assoc-default usage
+                  '(("1" . "Other*")
+                    ("2" . "Unrestricted*")
+                    ("3" . "Reserved for ComputerSystem (the block server)*")
+                    ("4" . "Reserved by Replication Services*")
+                    ("5" . "Reserved by Migration Services*")
+                    ("6" . "Local Replica Source*")
+                    ("7" . "Remote Replica Source*")
+                    ("8" . "Local Replica Target*")
+                    ("9" . "Remote Replica Target*")
+                    ("10" . "Local Replica Source or Target*")
+                    ("11" . "Remote Replica Source or Target*")
+                    ("12" . "Delta Replica Target*")
+                    ("13" . "Element Component*")
+                    ("14" . "Reserved as Pool Contributor*")
+                    ("15" . "Composite Volume Member*")
+                    ("16" . "Composite LogicalDisk Member*")
+                    ("17" . "Reserved for Sparing*")))
+   usage))
 
 
 (defun csv-lens-cell-format-volumetype (type)
@@ -99,16 +137,20 @@
 	("ElementType" :diff-function csv-lens-diff-always-nil)
 	
 	("StatisticTime" :diff-function csv-lens-diff-statistictime)
-	(("StatisticTime" "PeriodStartTime" "PeriodEndTime" "IM_OriginalStatisticTime") 
+	(("StatisticTime" "PeriodStartTime" "PeriodEndTime" "IM_OriginalStatisticTime"
+	  "IM_CollectorTime" "IM_TimeLastSampled") 
 	 :format-function csv-lens-cell-format-statistictime)
 	
 	("UsageRestriction" :format-function csv-lens-cell-format-usagerestriction)
+	("Usage" :format-function csv-lens-cell-format-usage)
 	("VolumeType" :format-function csv-lens-cell-format-volumetype)
 	
 	("Consumed" :format-function csv-lens-cell-format-huge-number)
 	
 	(("NumberOfBlocks" "ConsumableBlocks") 
 	 :format-function csv-lens-cell-format-big-number-of-blocks)
+
+	("Capacity" :format-function csv-lens-cell-format-big-number-of-bytes)
 	
 	(("EMCKBytesSPBWritten" "EMCKBytesSPAWritten" 
 	  "EMCKBytesSPBRead" "EMCKBytesSPARead" 
@@ -118,12 +160,16 @@
 	(("RequestedSpeed" "Speed" "MaxSpeed"
 	  "RemainingManagedSpace" "SpaceLimit" "TotalManagedSpace" "ThinProvisionMetaDataSpace") 
 	 :format-function csv-lens-cell-format-big-number-of-bytes)
+
+	("Nameformat" :format-function csv-lens-cell-format-nameformat)
 	
 	(("OtherIdentifyingInfo" "EMCWWN" 
 	  "AntecedentFCPortWWN" "AntecedentElementWWN" 
 	  "DependentFCPortWWN" "DependentElementWWN" 
-	  "ElementName" "DeviceID" 
-	  "SwitchWWPN" "PermanentAddress") 
+	  "ElementName" "DeviceID" "Name"
+	  "SwitchWWPN" "PermanentAddress"
+	  "IM_WWNOfExternalVolume"
+	  "PreferredWWPN" "ActiveWWPN") 
 	 :format-function csv-lens-cell-format-wwn)))
 
 (provide 'smis-csv-lens)
