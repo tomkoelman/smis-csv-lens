@@ -131,46 +131,47 @@
 
 ;;; Setting up the defaults
 
-(defvar csv-lens-default-column-state)
-(setq csv-lens-default-column-state
-      `(("InstanceID" :key t :diff-function csv-lens-diff-always-nil)
-	("ElementType" :diff-function csv-lens-diff-always-nil)
-	
-	("StatisticTime" :diff-function csv-lens-diff-statistictime)
-	(("StatisticTime" "PeriodStartTime" "PeriodEndTime" "IM_OriginalStatisticTime"
-	  "IM_CollectorTime" "IM_TimeLastSampled") 
-	 :format-function csv-lens-cell-format-statistictime)
-	
-	("UsageRestriction" :format-function csv-lens-cell-format-usagerestriction)
-	("Usage" :format-function csv-lens-cell-format-usage)
-	("VolumeType" :format-function csv-lens-cell-format-volumetype)
-	
-	("Consumed" :format-function csv-lens-cell-format-huge-number)
-	
-	(("NumberOfBlocks" "ConsumableBlocks") 
-	 :format-function csv-lens-cell-format-big-number-of-blocks)
+;(defvar csv-lens-default-column-state)
+(setq csv-lens-configurations
+      '(("SMIS"
+	  (("InstanceID" :key t :diff-function csv-lens-diff-always-nil)
+	   ("ElementType" :diff-function csv-lens-diff-always-nil)
+	   
+	   ("StatisticTime" :diff-function csv-lens-diff-statistictime)
+	   (("StatisticTime" "PeriodStartTime" "PeriodEndTime" "IM_OriginalStatisticTime"
+	     "IM_CollectorTime" "IM_TimeLastSampled") 
+	    :format-function csv-lens-cell-format-statistictime)
+	   
+	   ("UsageRestriction" :format-function csv-lens-cell-format-usagerestriction)
+	   ("Usage" :format-function csv-lens-cell-format-usage)
+	   ("VolumeType" :format-function csv-lens-cell-format-volumetype)
+	   
+	   ("Consumed" :format-function csv-lens-cell-format-huge-number)
+	   
+	   (("NumberOfBlocks" "ConsumableBlocks") 
+	    :format-function csv-lens-cell-format-big-number-of-blocks)
 
-	("Capacity" :format-function csv-lens-cell-format-big-number-of-bytes)
-	
-	(("EMCKBytesSPBWritten" "EMCKBytesSPAWritten" 
-	  "EMCKBytesSPBRead" "EMCKBytesSPARead" 
-	  "KBytesWritten" "KBytesTransferred" "KBytesRead") 
-	 :format-function csv-lens-cell-format-big-number-of-kilobytes)
-	
-	(("RequestedSpeed" "Speed" "MaxSpeed"
-	  "RemainingManagedSpace" "SpaceLimit" "TotalManagedSpace" "ThinProvisionMetaDataSpace") 
-	 :format-function csv-lens-cell-format-big-number-of-bytes)
+	   ("Capacity" :format-function csv-lens-cell-format-big-number-of-bytes)
+	   
+	   (("EMCKBytesSPBWritten" "EMCKBytesSPAWritten" 
+	     "EMCKBytesSPBRead" "EMCKBytesSPARead" 
+	     "KBytesWritten" "KBytesTransferred" "KBytesRead") 
+	    :format-function csv-lens-cell-format-big-number-of-kilobytes)
+	   
+	   (("RequestedSpeed" "Speed" "MaxSpeed"
+	     "RemainingManagedSpace" "SpaceLimit" "TotalManagedSpace" "ThinProvisionMetaDataSpace") 
+	    :format-function csv-lens-cell-format-big-number-of-bytes)
 
-	("Nameformat" :format-function csv-lens-cell-format-nameformat)
-	
-	(("OtherIdentifyingInfo" "EMCWWN" 
-	  "AntecedentFCPortWWN" "AntecedentElementWWN" 
-	  "DependentFCPortWWN" "DependentElementWWN" 
-	  "ElementName" "DeviceID" "Name"
-	  "SwitchWWPN" "PermanentAddress"
-	  "IM_WWNOfExternalVolume"
-	  "PreferredWWPN" "ActiveWWPN") 
-	 :format-function csv-lens-cell-format-wwn)))
+	   ("Nameformat" :format-function csv-lens-cell-format-nameformat)
+	   
+	   (("OtherIdentifyingInfo" "EMCWWN" 
+	     "AntecedentFCPortWWN" "AntecedentElementWWN" 
+	     "DependentFCPortWWN" "DependentElementWWN" 
+	     "ElementName" "DeviceID" "Name"
+	     "SwitchWWPN" "PermanentAddress"
+	     "IM_WWNOfExternalVolume"
+	     "PreferredWWPN" "ActiveWWPN") 
+	    :format-function csv-lens-cell-format-wwn)))))
 
 (provide 'smis-csv-lens)
 ;;; smis-csv-lens.el ends here
