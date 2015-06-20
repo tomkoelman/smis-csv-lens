@@ -133,7 +133,21 @@
 
 ;(defvar csv-lens-default-column-state)
 (setq csv-lens-configurations
-      '(("SMIS"
+      '(("SMIS-8"
+	  (("InstanceID" :key t :diff-function csv-lens-diff-always-nil)
+	   ("ElementType" :diff-function csv-lens-diff-always-nil)
+	   
+	   ("StatisticTime"
+	    :diff-function csv-lens-diff-statistictime
+	    :format-function csv-lens-cell-format-statistictime)
+	   
+	   (("EMCKBytesSPBWritten" "EMCKBytesSPAWritten" 
+	     "EMCKBytesSPBRead" "EMCKBytesSPARead" 
+	     "KBytesWritten" "KBytesTransferred" "KBytesRead") 
+	    :format-function csv-lens-cell-format-big-number-of-kilobytes)))
+
+	
+	("SMIS-default"
 	  (("InstanceID" :key t :diff-function csv-lens-diff-always-nil)
 	   ("ElementType" :diff-function csv-lens-diff-always-nil)
 	   
@@ -163,7 +177,7 @@
 	    :format-function csv-lens-cell-format-big-number-of-bytes)
 
 	   ("Nameformat" :format-function csv-lens-cell-format-nameformat)
-	   
+
 	   (("OtherIdentifyingInfo" "EMCWWN" 
 	     "AntecedentFCPortWWN" "AntecedentElementWWN" 
 	     "DependentFCPortWWN" "DependentElementWWN" 
