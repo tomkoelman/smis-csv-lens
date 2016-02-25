@@ -56,6 +56,76 @@
 		    ("4" .    "Not restricted*")))
    usagerestriction))
 
+(defun csv-lens-cell-format-port-type (port-type)
+  "Return a nicely formatted PORT-TYPE.
+This mapping is copied from:
+
+http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programming/guides/smi-s/smi_s.pdf"
+  (interactive)
+  (or
+   (assoc-default port-type
+		  '(("0" . "Unknown*")
+		    ("1" . "Other*")
+		    ("10" . "N*")
+		    ("11" . "NL*")
+		    ("12" . "F/NL*")
+		    ("12" . "Nx*")
+		    ("14" . "E*")
+		    ("15" . "F*")
+		    ("16" . "FL*")
+		    ("17" . "B*")
+		    ("18" . "G*")
+		    ("16004" . "PortChannel*")
+		    ("16010" . "FCIP*")
+		    ("16011" . "ISCSI-F*")
+		    ("16012" . "ISCSI-N*")))
+   port-type))
+
+(defun csv-lens-cell-format-port-availabity (availability)
+  (interactive)
+  (or
+   (assoc-default availability
+		  '(("0" . "Unknown*")
+		    ("1" . "Available*")
+		    ("2" . "Not Installed*")
+		    ("3" . "No Transceiver*")
+		    ("4" . "Incompatible Transceiver*")
+		    ("5" . "Not Licensed*")
+		    ("6" . "DMTF Reserverd*")))
+   availability))
+
+
+(defun csv-lens-cell-format-fc4-types (type)
+  (or
+   (assoc-default type
+		  '(("0" . "Unknown*")
+		    ("1" . "Other*")
+		    ("4" . "ISO/IEC 8802 - 2 LLC*")
+		    ("5" . "IP over FC*")
+		    ("8" . "SCSI - FCP*")
+		    ("9" . "SCSI - GPP*")
+		    ("17" . "IPI - 3 Master*")
+		    ("18" . "IPI - 3 Slave*")
+		    ("19" . "IPI - 3 Peer*")
+		    ("21" . "CP IPI - 3 Master*")
+		    ("22" . "CP IPI - 3 Slave*")
+		    ("23" . "CP IPI - 3 Peer*")
+		    ("25" . "SBCCS Channel*")
+		    ("26" . "SBCCS Control Unit*")
+		    ("27" . "FC-SB-2 Channel*")
+		    ("28" . "FC-SB-2 Control Unit*")
+		    ("32" . "Fibre Channel Services (FC-GS, FC-GS-2, FC-GS-3)*")
+		    ("34" . "FC-SW*")
+		    ("36" . "FC - SNMP*")
+		    ("64" . "HIPPI - FP*")
+		    ("80" . "BBL Control*")
+		    ("81" . "BBL FDDI Encapsulated LAN PDU*")
+		    ("82" . "BBL 802.3 Encapsulated LAN PDU*")
+		    ("88" . "FC - VI*")
+		    ("96" . "FC - AV*")
+		    ("255" . "Vendor Unique*")))
+   type))
+
 
 (defun csv-lens-cell-format-usage (usage)
   "Returns a nicely formatted USAGE."
@@ -177,7 +247,13 @@
 	    :format-function csv-lens-cell-format-big-number-of-bytes)
 
 	   ("Nameformat" :format-function csv-lens-cell-format-nameformat)
+	   
+	   ("PortType" :format-function csv-lens-cell-format-port-type)
 
+	   ("PortAvailability" :format-function csv-lens-cell-format-port-availabity)
+
+	   ("ActiveFC4Types" :format-function csv-lens-cell-format-fc4-types)
+	   
 	   (("OtherIdentifyingInfo" "EMCWWN" 
 	     "AntecedentFCPortWWN" "AntecedentElementWWN" 
 	     "DependentFCPortWWN" "DependentElementWWN" 
