@@ -45,6 +45,23 @@
         (t nameformat)))
 
 
+(defun csv-lens-cell-format-connectivitymembertype-format (nameformat)
+  (cond ((s-equals? nameformat "0") "Unknown*")
+        ((s-equals? nameformat "1") "Other*")
+	((s-equals? nameformat "2") "Permanent Address*")
+        ((s-equals? nameformat "3") "Network Address (NxPort) (FCID)*")
+        ((s-equals? nameformat "4") "Switch Port ID*")
+        ((s-equals? nameformat "5") "Logical Port Group (Node WWN)*")
+        ((s-equals? nameformat "6") "Connectivity Collection (Interface)*")
+        ((s-equals? nameformat "7") "Fabric Port WWN (fWWN)*")
+        ((s-equals? nameformat "8") "IPv4*")
+        ((s-equals? nameformat "9") "IPv6*")
+        ((s-equals? nameformat "10") "Remote Wsitch WWN (SWWN)*")
+        ((s-equals? nameformat "11") "Interface with DomainID*")
+        ((s-equals? nameformat "12") "Symbolic node name*")
+        (t nameformat)))
+
+
 (defun csv-lens-cell-format-usagerestriction (usagerestriction)
   "Return a nicely formatted USAGERESTRICTION."
   (interactive)
@@ -135,10 +152,10 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
                   '(("1" . "Other*")
                     ("2" . "Unrestricted*")
                     ("3" . "Reserved for ComputerSystem (the block server)*")
-                    ("4" . "Reserved by Replication Services*")
-                    ("5" . "Reserved by Migration Services*")
-                    ("6" . "Local Replica Source*")
-                    ("7" . "Remote Replica Source*")
+(                    ("4" . "Reserved by Replication Services*") . 		    ("1" . "Other"))
+(                    ("5" . "Reserved by Migration Services*") . 		    ("2" . "OK"))
+(                    ("6" . "Local Replica Source*") . 		    ("3" . "Degraded"))
+(                    ("7" . "Remote Replica Source*") . 		    ("4" . "Stressed"))
                     ("8" . "Local Replica Target*")
                     ("9" . "Remote Replica Target*")
                     ("10" . "Local Replica Source or Target*")
@@ -151,7 +168,53 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
                     ("17" . "Reserved for Sparing*")))
    usage))
 
+(defun csv-lens-cell-format-operational-status (status)
+  "Returns the operation STATUS as string.
+This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
+  (interactive)
+  (or
+   (assoc-default status
+		  '(("0" . "Unknown*")
+		    ("1" . "Other*")
+		    ("2" . "OK*")
+		    ("3" . "Degraded*")
+		    ("4" . "Stressed*")
+		    ("5" . "Predictive Failure*")
+		    ("6" . "Error*")
+		    ("7" . "Non-Recoverable Error*")
+		    ("8" . "Starting*")
+		    ("9" . "Stopping*")
+		    ("10" . "Stopped*")
+		    ("11" . "In Service*")
+		    ("12" . "No Contact*")
+		    ("13" . "Lost Communication*")
+		    ("14" . "Aborted*")
+		    ("15" . "Dormant*")
+		    ("16" . "Supporting Entity in Error*")
+		    ("17" . "Completed*")
+		    ("18" . "Power Mode*")
+		    ("19" . "Relocating*")))
+   status))
 
+
+
+(defun csv-lens-cell-format-device-type-connected (type)
+  "Returns the device TYPE of the other side.
+This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
+  (interactive)
+  (or
+   (assoc-default type '(
+			   ("0" . "Free*")
+			   ("1" . "Host*")
+			   ("2" . "Disk*")
+			   ("3" . "IPort*")
+			   ("4" . "FCRC*")
+			   ("7" . "Peer*")))
+		  type))
+
+
+
+    
 (defun csv-lens-cell-format-volumetype (type)
   (interactive)
   (or 
@@ -248,11 +311,17 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 
 	   ("Nameformat" :format-function csv-lens-cell-format-nameformat)
 	   
-	   ("PortType" :format-function csv-lens-cell-format-port-type)
+	   (("PortType" "AntecedentFCPortType" "DependentFCPortType")
+	    :format-function csv-lens-cell-format-port-type)
 
 	   ("PortAvailability" :format-function csv-lens-cell-format-port-availabity)
 
 	   ("ActiveFC4Types" :format-function csv-lens-cell-format-fc4-types)
+
+	   ("ConnectivityMemberType" :format-function  csv-lens-cell-format-connectivitymembertype-format)
+
+	   ("OperationalStatus" :format-function csv-lens-cell-format-operational-status)
+	   ("DeviceTypeConnected" :format-function csv-lens-cell-format-device-type-connected)
 	   
 	   (("OtherIdentifyingInfo" "EMCWWN" 
 	     "AntecedentFCPortWWN" "AntecedentElementWWN" 
@@ -260,7 +329,8 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 	     "ElementName" "DeviceID" "Name"
 	     "SwitchWWPN" "PermanentAddress"
 	     "IM_WWNOfExternalVolume"
-	     "PreferredWWPN" "ActiveWWPN") 
+	     "ConnectivityMemberID"
+	     "PreferredWWPN" "ActiveWWPN" "port*sas_wwn" "port*fcoe_wwpn" "port*wwpn") 
 	    :format-function csv-lens-cell-format-wwn)))))
 
 (provide 'smis-csv-lens)
