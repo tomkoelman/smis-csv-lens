@@ -30,6 +30,31 @@
       (concat (vendor-from-wwn/vendor-specific-nice-wwn wwn) " ("  (vendor-from-wwn wwn) ")*" )
     wwn))
 
+(defun csv-lens-cell-netapp-format-wwn (potential-wwn)
+  "Needs fixing and made robust against non WWNs"
+  (interactive)
+  (let ((wwn? (subseq potential-wwn 0 (min 17 (length potential-wwn)))))
+    (if (and (vendor-from-wwn/valid-wwn wwn?)
+	     (vendor-from-wwn wwn?))
+	(concat (vendor-from-wwn/vendor-specific-nice-wwn wwn?) " ("  (vendor-from-wwn wwn?) ")*" )
+     potential-wwn)))
+
+(defun csv-lens-cell-brocade-port-wwn (wwn)
+  "Testing to see if we can get the slot information out of the wwn"
+  (if (> (length wwn) 7)
+      (let ((normal-description (csv-lens-cell-format-wwn wwn))
+	    (vendor-info (vendor-sequence-from-wwn wwn)))
+	(or 
+	 (pcase (network-address-authority-from-wwn wwn)
+	   ("5" (when (> (length vendor-info) 8)
+		  (concat "A: " (subseq vendor-info 6) " B: " (subseq vendor-info 0 6) " -- " normal-description)))
+	   
+	   ("2" (when (> (length vendor-info) 3)
+		  (concat "A: " (subseq vendor-info 0 3) " B: " (subseq vendor-info 3) " -- " normal-description))))
+     
+	 normal-description)))
+  wwn)
+    
 (defun csv-lens-cell-format-nameformat (nameformat)
   (cond ((s-equals? nameformat "1") "Other*")
         ((s-equals? nameformat "2") "VPD83NAA6 (deprecated)*")
@@ -56,9 +81,10 @@
         ((s-equals? nameformat "7") "Fabric Port WWN (fWWN)*")
         ((s-equals? nameformat "8") "IPv4*")
         ((s-equals? nameformat "9") "IPv6*")
-        ((s-equals? nameformat "10") "Remote Wsitch WWN (SWWN)*")
+        ((s-equals? nameformat "10") "Remote Switch WWN (SWWN)*")
         ((s-equals? nameformat "11") "Interface with DomainID*")
         ((s-equals? nameformat "12") "Symbolic node name*")
+	((s-equals? nameformat "13") "Device Alias*")
         (t nameformat)))
 
 
@@ -72,6 +98,32 @@
 		    ("3" .    "Back-end only*")
 		    ("4" .    "Not restricted*")))
    usagerestriction))
+
+(defun csv-lens-cell-format-topology (topology)
+  (or
+   (assoc-default topology
+		  '(("0" . "Unknown*")
+		    ("1" . "Private Loop*")
+		    ("2" . "Public Loop*")
+		    ("3" . "Point to Point*")
+		    ("4" . "Fabric*")))
+   topology))
+
+(defun csv-lens-cell-format-configuration (config)
+  (or
+   (assoc-default config
+		  '(("0" . "Unknown*")
+		    ("1" . "Valid*")
+		    ("2" . "Invalid*")))
+   config))
+
+(defun csv-lens-cell-format-mode (mode)
+  (or
+   (assoc-default mode
+		  '(("0" . "Suspended*")
+		    ("1" . "Target*")
+		    ("2" . "Initiatior*")))
+   mode))
 
 (defun csv-lens-cell-format-port-type (port-type)
   "Return a nicely formatted PORT-TYPE.
@@ -110,6 +162,42 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 		    ("5" . "Not Licensed*")
 		    ("6" . "DMTF Reserverd*")))
    availability))
+
+
+(defun csv-lens-cell-format-link-technology (technology)
+  (interactive)
+  (or
+   (assoc-default technology
+		  '(("0" . "Unknown*")
+		    ("1" . "Other*")
+		    ("2" . "Ethernet*")
+		    ("3" . "IB*")
+		    ("4" . "FC*")
+		    ("5" . "FDDI*")
+		    ("6" . "ATM*")
+		    ("7" . "Token Ring*")
+		    ("8" . "Frame Relay*")
+		    ("9" . "Infrared*")
+		    ("10" . "BlueTooth*")
+		    ("11" . "Wireless LAN*")))
+   technology))
+
+(defun csv-lens-cell-format-detailed-port-state (port-state)
+  (interactive)
+  (or
+   (assoc-default port-state
+		  '(("0" . "Unknown*")
+		    ("1" . "Other*")
+		    ("2" . "Transceiver Validation*")
+		    ("3" . "Locking To Reference Signal*")
+		    ("4" . "Sync*")
+		    ("5" . "Invalid Receiver*")
+		    ("6" . "No Light*")
+		    ("7" . "No Sync*")
+		    ("8" . "Laser Fault*")
+		    ("9" . "Port Fault*")
+		    ("10" . "Diagnostic Fault")))
+   port-state))
 
 
 (defun csv-lens-cell-format-fc4-types (type)
@@ -152,10 +240,10 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
                   '(("1" . "Other*")
                     ("2" . "Unrestricted*")
                     ("3" . "Reserved for ComputerSystem (the block server)*")
-(                    ("4" . "Reserved by Replication Services*") . 		    ("1" . "Other"))
-(                    ("5" . "Reserved by Migration Services*") . 		    ("2" . "OK"))
-(                    ("6" . "Local Replica Source*") . 		    ("3" . "Degraded"))
-(                    ("7" . "Remote Replica Source*") . 		    ("4" . "Stressed"))
+		    ("4" . "Reserved by Replication Services*")
+		    ("5" . "Reserved by Migration Services*")
+		    ("6" . "Local Replica Source*")
+		    ("7" . "Remote Replica Source*")
                     ("8" . "Local Replica Target*")
                     ("9" . "Remote Replica Target*")
                     ("10" . "Local Replica Source or Target*")
@@ -198,6 +286,79 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 
 
+(defun csv-lens-cell-format-port-discriminator (status)
+  ""
+  (interactive)
+  (or
+   (assoc-default status
+		  '(("0" . "Unknown*")
+		    ("2" . "Not Applicable*")
+		    ("3" . "VF*")
+		    ("4" . "FCIP*")
+		    ("5" . "IFR*")
+		    ("6" . "IFR (Virtual)*")
+		    ("7" . "NPIV*")
+		    ("8" . "Internal*")
+		    ("9" . "Chassis*")
+		    ("10" . "FCoE*")
+		    ("11" . "FC (Native)*")
+		    ("12" . "HBA*")
+		    ("13" . "Storage*")))
+   status))
+
+(defun csv-lens-cell-format-enabled-default (status)
+  ""
+  (interactive)
+  (or
+   (assoc-default status
+		  '(("2" . "Enabled*")
+		    ("3" . "Disabled*")
+		    ("5" . "Not Applicable*")
+		    ("6" . "Enabled but Offline*")
+		    ("7" . "No Default*")
+		    ("9" . "Quiesce*")))
+   status))
+
+(defun csv-lens-cell-format-enabled-state (status)
+  ""
+  (interactive)
+  (or
+   (assoc-default status
+		  '(("0" . "Unknown*")
+		    ("1" . "Other*")
+		    ("2" . "Enabled*")
+		    ("3" . "Disabled*")
+		    ("4" . "Shutting Down*")
+		    ("5" . "Not Applicable*")
+		    ("6" . "Enabled but Offline*")
+		    ("7" . "In Test*")
+		    ("8" . "Deferred*")
+		    ("9" . "Quiesce*")
+		    ("10" . "Starting*")
+		    ))
+   status))
+
+
+(defun csv-lens-cell-format-requested-state (status)
+  ""
+  (interactive)
+  (or
+   (assoc-default status
+		  '(("0" . "Unknown*")
+		    ("2" . "Enabled*")
+		    ("3" . "Disabled*")
+		    ("4" . "Shut Down*")
+		    ("5" . "No Change*")
+		    ("6" . "Offline*")
+		    ("7" . "Test*")
+		    ("8" . "Deferred*")
+		    ("9" . "Quiesce*")
+		    ("10" . "Reboot*")
+		    ("11" . "Reset")
+		    ("12" . "Not Applicable*")
+		    ))
+   status))
+
 (defun csv-lens-cell-format-device-type-connected (type)
   "Returns the device TYPE of the other side.
 This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
@@ -213,7 +374,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 		  type))
 
 
-
     
 (defun csv-lens-cell-format-volumetype (type)
   (interactive)
@@ -222,11 +382,18 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 		  '(("0" . "Unknown*")
 		    ("1" . "Base*")
 		    ("2" . "Physical Copy*")
-		    ("3" . "Virtual Copy")
-		    ("4" . "Remote Copy")))
+		    ("3" . "Virtual Copy*")
+		    ("4" . "Remote Copy*")))
    type))
 
-
+(defun csv-lens-cell-format-space-limit-determination (type)
+  (or
+   (assoc-default type
+		  '(("2" . "Allocated*")
+		    ("3" . "Quota*")
+		    ("4" . "Limitless")))
+   type))
+    
 (defun csv-lens-cell-format-statistictime (statistictime)
   "Return a nicely formatted STATISTICTIME."
   (interactive)
@@ -278,7 +445,7 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 	     "EMCKBytesSPBRead" "EMCKBytesSPARead" 
 	     "KBytesWritten" "KBytesTransferred" "KBytesRead") 
 	    :format-function csv-lens-cell-format-big-number-of-kilobytes)))
-
+	
 	
 	("SMIS-default"
 	  (("InstanceID" :key t :diff-function csv-lens-diff-always-nil)
@@ -295,7 +462,7 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 	   
 	   ("Consumed" :format-function csv-lens-cell-format-huge-number)
 	   
-	   (("NumberOfBlocks" "ConsumableBlocks") 
+	   (("NumberOfBlocks" "ConsumableBlocks" "IM_NumberOfBlocks") 
 	    :format-function csv-lens-cell-format-big-number-of-blocks)
 
 	   ("Capacity" :format-function csv-lens-cell-format-big-number-of-bytes)
@@ -305,8 +472,9 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 	     "KBytesWritten" "KBytesTransferred" "KBytesRead") 
 	    :format-function csv-lens-cell-format-big-number-of-kilobytes)
 	   
-	   (("RequestedSpeed" "Speed" "MaxSpeed"
-	     "RemainingManagedSpace" "SpaceLimit" "TotalManagedSpace" "ThinProvisionMetaDataSpace") 
+	   (("RequestedSpeed" "Speed" "MaxSpeed" "EMCSpaceConsumed" "IM_SpaceConsumed"
+	     "RemainingManagedSpace" "SpaceLimit" "TotalManagedSpace" "ThinProvisionMetaDataSpace"
+	     "EMCMetaDataAllocatedCapacity" "EMCMetaDataSubscribedCapacity" "ReservedSpace") 
 	    :format-function csv-lens-cell-format-big-number-of-bytes)
 
 	   ("Nameformat" :format-function csv-lens-cell-format-nameformat)
@@ -316,22 +484,46 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 	   ("PortAvailability" :format-function csv-lens-cell-format-port-availabity)
 
+	   ("DetailedPortState" :format-function csv-lens-cell-format-detailed-port-state)
+	   
 	   ("ActiveFC4Types" :format-function csv-lens-cell-format-fc4-types)
 
+	   ("LinkTechnology" :format-function csv-lens-cell-format-link-technology)
+	   
 	   ("ConnectivityMemberType" :format-function  csv-lens-cell-format-connectivitymembertype-format)
+	   
+	   ("EnabledDefault" :format-function csv-lens-cell-format-enabled-default)
+	   ("EnabledState" :format-function csv-lens-cell-format-enabled-state)
+	   (("RequestedState" "TransitioningToState") :format-function csv-lens-cell-format-requested-state)
+	   ("PortDiscriminator" :format-function csv-lens-cell-format-port-discriminator)
 
 	   ("OperationalStatus" :format-function csv-lens-cell-format-operational-status)
 	   ("DeviceTypeConnected" :format-function csv-lens-cell-format-device-type-connected)
+
+	   ("DeviceID" :format-function csv-lens-cell-brocade-port-wwn)
 	   
 	   (("OtherIdentifyingInfo" "EMCWWN" 
 	     "AntecedentFCPortWWN" "AntecedentElementWWN" 
 	     "DependentFCPortWWN" "DependentElementWWN" 
-	     "ElementName" "DeviceID" "Name"
+	     "ElementName" ; "DeviceID"
+	     "Name"
 	     "SwitchWWPN" "PermanentAddress"
 	     "IM_WWNOfExternalVolume"
 	     "ConnectivityMemberID"
-	     "PreferredWWPN" "ActiveWWPN" "port*sas_wwn" "port*fcoe_wwpn" "port*wwpn") 
-	    :format-function csv-lens-cell-format-wwn)))))
+	     "PreferredWWPN" "ActiveWWPN" "port*sas_wwn" "port*fcoe_wwpn" "port*wwpn" "WWN" "SystemName"
+	     "SwitchWWN" "SwitchPortWWN") 
+	    :format-function csv-lens-cell-format-wwn)
+
+	   ("Topology" :format-function csv-lens-cell-format-topology)
+	   ("Configuration" :format-function csv-lens-cell-format-configuration)
+	   ("Mode" :format-function csv-lens-cell-format-mode)
+	   ))
+	   
+	  
+	("netapp"
+	 ((("size-total" "size-used" "size-available" "filesystem-size"
+	    "recv_data" "send_data") :format-function csv-lens-cell-format-big-number-of-bytes)
+	  (("instance_name" "instance_uuid") :format-function csv-lens-cell-netapp-format-wwn)))))
 
 (provide 'smis-csv-lens)
-;;; smis-csv-lens.el ends here
+;;; smis-csv-lens.el ends her
