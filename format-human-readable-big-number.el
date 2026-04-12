@@ -1,7 +1,7 @@
 ;;; The following code is Copyright Pascal Bourguignon 1995 - 2011
 ;;; and distributed under the GPL 2 or later license.
 
-(require 'cl)
+(require 'cl-lib)
 
 
 (defun dichotomy (vector value compare &optional start end key)
@@ -26,7 +26,7 @@ POST:   (<= start index end)
          (curmax end)
          (index  (truncate (+ curmin curmax) 2))
          (order  (funcall compare value (funcall key (aref vector index)))) )
-    (loop while (and (/= 0 order) (/= curmin index)) do
+    (cl-loop while (and (/= 0 order) (/= curmin index)) do
          (if (< order 0)
              (setf curmax index)
              (setf curmin index))
@@ -34,8 +34,8 @@ POST:   (<= start index end)
          (setf order (funcall compare value (funcall key (aref vector index)))))
     (when (and (< start index) (< order 0))
       (setf order 1)
-      (decf index))
-    (assert
+      (cl-decf index))
+    (cl-assert
      (or (< (funcall compare value (funcall key (aref vector start))) 0)
          (and (< (funcall compare (funcall key (aref vector index)) value) 0)
               (or (>= (1+ index) end)
@@ -56,15 +56,15 @@ DO:      Filters out prefixes that are out of range for type of the
 
 RETURN:  a list of (long short base^exponent-value)
 "
-  (etypecase value
+  (cl-etypecase value
     (float
      (mapcar (lambda (prefix)
-               (destructuring-bind (long short (expt base exponent)) prefix
+               (cl-destructuring-bind (long short (expt base exponent)) prefix
                  (list long short (expt (float base) exponent))))
              prefixes))
     (integer
-     (mapcan (lambda (prefix)
-               (destructuring-bind (long short (expt base exponent)) prefix
+     (cl-mapcan (lambda (prefix)
+               (cl-destructuring-bind (long short (expt base exponent)) prefix
                  (when (< (expt (float base) exponent) most-positive-fixnum)
                    (list (list long short (expt (float base) exponent))))))
              prefixes))))
@@ -78,15 +78,15 @@ PREFIX-CODE either :si or :binary
 TYPE        either float or integer
 "
   (let ((table (make-hash-table :test (function equal))))
-    (loop
+    (cl-loop
        for value in '(0 0.0) 
        for type in '(integer float)
-       do (loop
+       do (cl-loop
              for prefix-code in '(:si :binary)
              for prefixes     in (list *si-prefixes* *binary-prefixes*)
              do (setf (gethash (list prefix-code type) table)
                       (coerce (sort  (filter-prefixes prefixes value)
-                                     (lambda (a b) (< (third a) (third b))))
+                                     (lambda (a b) (< (cl-third a) (cl-third b))))
                               'vector))))
     table))
 
@@ -102,7 +102,7 @@ TYPE        either float or integer
     ("kilo"  "k" (expt 10 3))
     (""      ""  (expt 10 0))
     ("milli" "m" (expt 10 -3))
-    ("micro" "µ" (expt 10 -6))
+    ("micro" "ï¿½" (expt 10 -6))
     ("nano"  "n" (expt 10 -9))
     ("pico"  "p" (expt 10 -12))
     ("femto" "f" (expt 10 -15))
@@ -129,27 +129,27 @@ TYPE        either float or integer
 Find from the *prefixes* the scale of the number NUM with the given
 PREFIX-CODE.
 "
-  (let ((prefixes  (gethash (list prefix-code (etypecase num
+  (let ((prefixes  (gethash (list prefix-code (cl-etypecase num
                                                 (integer 'integer)
                                                 (float   'float)))
                             *prefixes*)))
-    (destructuring-bind (foundp index order)
+    (cl-destructuring-bind (foundp index order)
         (dichotomy prefixes num (lambda (a b)
                                   (cond ((< a b) -1)
                                         ((< b a) +1)
                                         (t        0)))
-                   0 (length prefixes) (function third))
+                   0 (length prefixes) (function cl-third))
       (cond
         ((minusp order) ; too small
          '("" "" 1))
-        ((< (/ num 1000.0) (third (aref prefixes index))) ; ok
+        ((< (/ num 1000.0) (cl-third (aref prefixes index))) ; ok
          (aref prefixes index))
         (t ; too big
          '("" "" 1))))))
 
 (defun format-human-readable-big-number (num format exceptional-format
                                          base-unit short-form prefixes)
-  (destructuring-bind (long short scale) (find-scale num prefixes)
+  (cl-destructuring-bind (long short scale) (find-scale num prefixes)
 
     (format "%s %s%s" (format (if (and (= 1 scale)
                                        (or (and (< 0 (abs num)) (< (abs num) 1))
