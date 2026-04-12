@@ -431,8 +431,8 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 ;;; Setting up the defaults
 
-;(defvar csv-lens-default-column-state)
 (setq csv-lens-configurations
+      (append csv-lens-configurations
       '(("SMIS-8"
 	  (("InstanceID" :key t :diff-function csv-lens-diff-always-nil)
 	   ("ElementType" :diff-function csv-lens-diff-always-nil)
@@ -523,7 +523,7 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 	("netapp"
 	 ((("size-total" "size-used" "size-available" "filesystem-size"
 	    "recv_data" "send_data") :format-function csv-lens-cell-format-big-number-of-bytes)
-	  (("instance_name" "instance_uuid") :format-function csv-lens-cell-netapp-format-wwn)))))
+	  (("instance_name" "instance_uuid") :format-function csv-lens-cell-netapp-format-wwn))))))
 
 (provide 'smis-csv-lens)
 ;;; smis-csv-lens.el ends her
