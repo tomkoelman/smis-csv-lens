@@ -24,7 +24,6 @@
 
 (defun csv-lens-cell-format-wwn (wwn)
   "Return a nicely formatted WWN."
-  (interactive)
   (if (and (vendor-from-wwn/valid-wwn wwn)
            (vendor-from-wwn wwn))
       (concat (vendor-from-wwn/vendor-specific-nice-wwn wwn) " ("  (vendor-from-wwn wwn) ")*" )
@@ -32,7 +31,6 @@
 
 (defun csv-lens-cell-netapp-format-wwn (potential-wwn)
   "Needs fixing and made robust against non WWNs"
-  (interactive)
   (let ((wwn? (substring potential-wwn 0 (min 17 (length potential-wwn)))))
     (if (and (vendor-from-wwn/valid-wwn wwn?)
 	     (vendor-from-wwn wwn?))
@@ -90,7 +88,6 @@
 
 (defun csv-lens-cell-format-usagerestriction (usagerestriction)
   "Return a nicely formatted USAGERESTRICTION."
-  (interactive)
   (or
    (assoc-default usagerestriction
 		  '(("0" .    "Unknown*")
@@ -130,7 +127,6 @@
 This mapping is copied from:
 
 http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programming/guides/smi-s/smi_s.pdf"
-  (interactive)
   (or
    (assoc-default port-type
 		  '(("0" . "Unknown*")
@@ -151,7 +147,6 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
    port-type))
 
 (defun csv-lens-cell-format-port-availabity (availability)
-  (interactive)
   (or
    (assoc-default availability
 		  '(("0" . "Unknown*")
@@ -165,7 +160,6 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 
 
 (defun csv-lens-cell-format-link-technology (technology)
-  (interactive)
   (or
    (assoc-default technology
 		  '(("0" . "Unknown*")
@@ -183,7 +177,6 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
    technology))
 
 (defun csv-lens-cell-format-detailed-port-state (port-state)
-  (interactive)
   (or
    (assoc-default port-state
 		  '(("0" . "Unknown*")
@@ -234,7 +227,6 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 
 (defun csv-lens-cell-format-usage (usage)
   "Returns a nicely formatted USAGE."
-  (interactive)
   (or
    (assoc-default usage
                   '(("1" . "Other*")
@@ -259,7 +251,6 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 (defun csv-lens-cell-format-operational-status (status)
   "Returns the operation STATUS as string.
 This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
-  (interactive)
   (or
    (assoc-default status
 		  '(("0" . "Unknown*")
@@ -288,7 +279,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 (defun csv-lens-cell-format-port-discriminator (status)
   ""
-  (interactive)
   (or
    (assoc-default status
 		  '(("0" . "Unknown*")
@@ -308,7 +298,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 (defun csv-lens-cell-format-enabled-default (status)
   ""
-  (interactive)
   (or
    (assoc-default status
 		  '(("2" . "Enabled*")
@@ -321,7 +310,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 (defun csv-lens-cell-format-enabled-state (status)
   ""
-  (interactive)
   (or
    (assoc-default status
 		  '(("0" . "Unknown*")
@@ -341,7 +329,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 (defun csv-lens-cell-format-requested-state (status)
   ""
-  (interactive)
   (or
    (assoc-default status
 		  '(("0" . "Unknown*")
@@ -362,7 +349,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 (defun csv-lens-cell-format-device-type-connected (type)
   "Returns the device TYPE of the other side.
 This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
-  (interactive)
   (or
    (assoc-default type '(
 			   ("0" . "Free*")
@@ -376,7 +362,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
     
 (defun csv-lens-cell-format-volumetype (type)
-  (interactive)
   (or 
    (assoc-default type
 		  '(("0" . "Unknown*")
@@ -396,7 +381,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
     
 (defun csv-lens-cell-format-statistictime (statistictime)
   "Return a nicely formatted STATISTICTIME."
-  (interactive)
   (if (> (length statistictime) 18)
       (let (year month day hour minute second offset)
 	(setq year (substring statistictime 0 4)
@@ -413,7 +397,6 @@ This data is taken for the TPD_FCPort for the 3PAR.  See the 3PAR classes file"
 
 (defun csv-lens-cell-format-big-number-of-bytes (big-number-of-bytes)
   ""
-  (interactive)
   (format-human-readable-big-number (string-to-number big-number-of-bytes) "%0.1f" *exceptional-format* "B" t :binary))
 
 (defun csv-lens-cell-format-big-number-of-kilobytes (big-number-of-kilobytes)
