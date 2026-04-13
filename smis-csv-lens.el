@@ -138,7 +138,7 @@ http://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/5_2/programm
 		    ("10" . "N*")
 		    ("11" . "NL*")
 		    ("12" . "F/NL*")
-		    ("12" . "Nx*")
+		    ("13" . "Nx*")
 		    ("14" . "E*")
 		    ("15" . "F*")
 		    ("16" . "FL*")
