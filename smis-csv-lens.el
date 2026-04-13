@@ -4,7 +4,7 @@
 
 ;; Author: Willem Rein Oudshoorn <woudshoo@xs4all.nl>
 ;; Created: June 2015
-;; Version: 0.2
+;; Version: 0.3
 ;; Keywords: extensions
 ;; Package-Requires: (csv-lens)
 
