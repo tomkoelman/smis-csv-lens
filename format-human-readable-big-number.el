@@ -86,7 +86,7 @@ TYPE        either float or integer
              for prefix-code in '(:si :binary)
              for prefixes     in (list *si-prefixes* *binary-prefixes*)
              do (setf (gethash (list prefix-code type) table)
-                      (coerce (sort  (filter-prefixes prefixes value)
+                      (cl-coerce (sort  (filter-prefixes prefixes value)
                                      (lambda (a b) (< (cl-third a) (cl-third b))))
                               'vector))))
     table))
@@ -141,7 +141,7 @@ PREFIX-CODE.
                                         (t        0)))
                    0 (length prefixes) (function cl-third))
       (cond
-        ((minusp order) ; too small
+        ((cl-minusp order) ; too small
          '("" "" 1))
         ((< (/ num 1000.0) (cl-third (aref prefixes index))) ; ok
          (aref prefixes index))

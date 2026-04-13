@@ -16,6 +16,7 @@
 ;;; Code:
 
 
+(require 'cl-lib)
 (require 'vendor-from-wwn)
 (require 'format-human-readable-big-number)
 (require 'csv-lens-smis-time)
@@ -33,7 +34,7 @@
 (defun csv-lens-cell-netapp-format-wwn (potential-wwn)
   "Needs fixing and made robust against non WWNs"
   (interactive)
-  (let ((wwn? (subseq potential-wwn 0 (min 17 (length potential-wwn)))))
+  (let ((wwn? (cl-subseq potential-wwn 0 (min 17 (length potential-wwn)))))
     (if (and (vendor-from-wwn/valid-wwn wwn?)
 	     (vendor-from-wwn wwn?))
 	(concat (vendor-from-wwn/vendor-specific-nice-wwn wwn?) " ("  (vendor-from-wwn wwn?) ")*" )
@@ -47,10 +48,10 @@
 	(or 
 	 (pcase (network-address-authority-from-wwn wwn)
 	   ("5" (when (> (length vendor-info) 8)
-		  (concat "A: " (subseq vendor-info 6) " B: " (subseq vendor-info 0 6) " -- " normal-description)))
+		  (concat "A: " (cl-subseq vendor-info 6) " B: " (cl-subseq vendor-info 0 6) " -- " normal-description)))
 	   
 	   ("2" (when (> (length vendor-info) 3)
-		  (concat "A: " (subseq vendor-info 0 3) " B: " (subseq vendor-info 3) " -- " normal-description))))
+		  (concat "A: " (cl-subseq vendor-info 0 3) " B: " (cl-subseq vendor-info 3) " -- " normal-description))))
      
 	 normal-description)))
   wwn)
