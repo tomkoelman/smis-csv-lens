@@ -1,4 +1,4 @@
-;;; csv-lens-smis-time.el --- parse and format time strings
+;;; csv-lens-smis-time.el --- parse and format time strings  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 

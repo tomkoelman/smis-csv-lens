@@ -1,3 +1,4 @@
+;;; format-human-readable-big-number.el --- format big numbers  -*- lexical-binding: t; -*-
 ;;; The following code is Copyright Pascal Bourguignon 1995 - 2011
 ;;; and distributed under the GPL 2 or later license.
 

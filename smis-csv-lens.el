@@ -1,4 +1,4 @@
-;;; smis-csv-lens.el -- Specialization of csv-lens for SMI-S csv files
+;;; smis-csv-lens.el -- Specialization of csv-lens for SMI-S csv files  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2015 Willem Rein Oudshoorn
 
