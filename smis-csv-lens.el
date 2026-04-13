@@ -123,7 +123,7 @@
    (assoc-default mode
 		  '(("0" . "Suspended*")
 		    ("1" . "Target*")
-		    ("2" . "Initiatior*")))
+		    ("2" . "Initiator*")))
    mode))
 
 (defun csv-lens-cell-format-port-type (port-type)
